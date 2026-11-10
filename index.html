@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#172554">
+<title>Class 9 Marksheet</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--bg:#f1f5f9;--card:#fff;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--green:#15803d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Arial,sans-serif}
+header{background:linear-gradient(135deg,#172554,#1d4ed8);color:white;padding:22px 16px}
+header h1{font-size:23px;margin:0}header p{margin:6px 0 0;color:#dbeafe;font-size:13px}
+main{max-width:850px;margin:auto;padding:13px}
+nav{display:flex;gap:7px;overflow:auto;margin:0 0 12px}
+button{border:0;border-radius:10px;padding:11px 13px;font-weight:700;font-size:14px;cursor:pointer}
+.tab{background:#dbe3ef;color:#334155;white-space:nowrap}.tab.active{background:var(--blue);color:white}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #0f172a08}
+h2{font-size:18px;margin:0 0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:135px}
+input,select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:white;font-size:15px;color:var(--ink)}
+.primary{background:var(--blue);color:white}.soft{background:#e2e8f0;color:#1e293b}.red{background:#fee2e2;color:#991b1b}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:left}th{background:#f8fafc;color:#475569}
+.wrap{overflow-x:auto}.mark{max-width:105px;text-align:center;padding:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f8fafc;border-radius:10px;padding:11px}.stat small{color:var(--muted)}.stat b{display:block;font-size:19px;margin-top:3px}
+.student{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.student:last-child{border:0}
+.hidden{display:none}.tag{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:4px 8px;border-radius:20px;font-size:12px;font-weight:700}
+footer{text-align:center;padding:8px 4px 24px;color:var(--muted);font-size:12px}
+@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}header h1{font-size:21px}}
+</style>
+</head>
+<body>
+<header><h1>📘 Class 9 Marksheet</h1><p>Apne aur doston ke marks bharo • Result dekho • Comparison aur ranking</p></header>
+<main>
+<nav>
+<button class="tab active" data-tab="entry">Marks Bharo</button>
+<button class="tab" data-tab="students">Students</button>
+<button class="tab" data-tab="compare">Compare</button>
+<button class="tab" data-tab="rank">Ranking</button>
+</nav>
+<section id="entry">
+<div class="card">
+<h2>Student aur Exam chuno</h2>
+<div class="row"><select id="student"></select><select id="exam">
+<option value="0">1st Unit Test — 50</option><option value="1">Half Yearly — 100</option>
+<option value="2">2nd Unit Test — 50</option><option value="3">Annual Examination — 100</option>
+</select></div>
+<p class="muted">Har subject ke marks likho. Marks isi device par automatically save hote rahenge.</p>
+</div>
+<div class="card"><h2>Subject-wise Marks</h2><div class="wrap"><table><thead><tr><th>Subject</th><th>Marks</th><th>Maximum</th></tr></thead><tbody id="markRows"></tbody></table></div></div>
+<div class="card" id="summary"></div>
+</section>
+<section id="students" class="hidden">
+<div class="card"><h2>Naya Student / Dost Add Karo</h2><div class="row"><input id="newName" placeholder="Student ka naam"><button class="primary" id="add">Add Student</button></div><p class="muted">Dost ka naam add karke uske marks bhi isi app mein bhar sakte ho.</p></div>
+<div class="card"><h2>Student List</h2><div id="studentList"></div></div>
+</section>
+<section id="compare" class="hidden">
+<div class="card"><h2>Do Students ka Comparison</h2><div class="row"><select id="personA"></select><select id="personB"></select></div><div id="compareResult" style="margin-top:14px"></div></div>
+</section>
+<section id="rank" class="hidden">
+<div class="card"><h2>Class Ranking</h2><p class="muted">Sabhi 4 exams aur 6 subjects ke total marks ke hisaab se ranking.</p><div class="wrap"><table><thead><tr><th>Rank</th><th>Student</th><th>Total</th><th>Percentage</th></tr></thead><tbody id="rankRows"></tbody></table></div></div>
+</section>
+<div class="card">
+<h2>Backup / Restore</h2><p class="muted">Phone badalne ya browser data clear hone se pehle backup download kar lo.</p>
+<div class="row"><button class="soft" id="backup">⬇ Download Backup</button><label class="soft" style="display:block;text-align:center;padding:11px;border-radius:10px;font-weight:700">⬆ Restore Backup<input id="restore" type="file" accept="application/json" style="display:none"></label></div>
+</div>
+<footer>Maximum total: 1,800 marks (6 subjects × 300). App data is stored in this browser on this device.</footer>
+</main>
+<script>
+const subjects=["Hindi","English","Maths","Science","Social Science","Computer / Assamese"];
+const exams=[{name:"1st Unit Test",max:50},{name:"Half Yearly",max:100},{name:"2nd Unit Test",max:50},{name:"Annual Examination",max:100}];
+const KEY="class9_marksheet_v2";
+const initial=["Hirak","Raghunandan","Kishan","Kanhaiya","Krishna","Riya","Jyoti","Shagun"];
+let db;
+function blank(name){return {name,marks:exams.map(()=>subjects.map(()=>""))}}
+function load(){try{db=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!db||!Array.isArray(db.students))db={students:initial.map(blank)};}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function total(s){return s.marks.flat().reduce((n,v)=>n+(v===""?0:Number(v)||0),0)}
+function percent(s){return total(s)/1800*100}
+function current(){return db.students[Number(student.value)]}
+function setOptions(el,keep=true){let old=keep?el.value:"";el.innerHTML="";db.students.forEach((s,i)=>{let o=document.createElement("option");o.value=i;o.textContent=s.name;el.append(o)});if(old!==""&&Number(old)<db.students.length)el.value=old}
+function refresh(){
+ [student,personA,personB].forEach(el=>setOptions(el));
+ if(db.students.length>1&&personB.value==="0")personB.value="1";
+ renderMarks();renderStudents();renderCompare();renderRank();
+}
+function renderMarks(){
+ let s=current(),ei=Number(exam.value);
+ if(!s){markRows.innerHTML='<tr><td colspan="3">Pehle Students tab se student add karo.</td></tr>';summary.innerHTML="";return}
+ markRows.innerHTML=subjects.map((sub,i)=>`<tr><td>${sub}</td><td><input class="mark" type="number" min="0" max="${exams[ei].max}" step="0.5" data-i="${i}" value="${s.marks[ei][i]}" placeholder="0"></td><td>${exams[ei].max}</td></tr>`).join("");
+ document.querySelectorAll("[data-i]").forEach(inp=>inp.addEventListener("change",()=>{
+ let v=inp.value,i=Number(inp.dataset.i),max=exams[ei].max;
+ if(v!==""&&(!Number.isFinite(Number(v))||Number(v)<0||Number(v)>max)){alert("Marks 0 se "+max+" ke beech hone chahiye.");inp.value=s.marks[ei][i];return}
+ s.marks[ei][i]=v;save();renderSummary();
+ }));
+ renderSummary();
+}
+function renderSummary(){let s=current();if(!s)return;summary.innerHTML=`<h2>${s.name} ka Overall Result</h2><div class="stats"><div class="stat"><small>Total Marks</small><b>${total(s)} / 1800</b></div><div class="stat"><small>Percentage</small><b>${percent(s).toFixed(2)}%</b></div><div class="stat"><small>Exams</small><b>4 / 4</b></div></div><p class="muted">Unit Test 1: 50 • Half Yearly: 100 • Unit Test 2: 50 • Annual: 100 (har subject ke liye)</p>`}
+function renderStudents(){studentList.innerHTML=db.students.map((s,i)=>`<div class="student"><div><b>${esc(s.name)}</b><div class="muted">${total(s)} / 1800 marks</div></div><button class="red" data-del="${i}">Remove</button></div>`).join("")||"Abhi koi student nahi hai.";document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{let i=Number(b.dataset.del);if(confirm(db.students[i].name+" ko remove karein?")){db.students.splice(i,1);save();refresh()}})}
+function renderCompare(){let a=db.students[Number(personA.value)],b=db.students[Number(personB.value)];if(!a||!b){compareResult.textContent="Comparison ke liye kam se kam 2 students add karo.";return}let lead=total(a)===total(b)?"Dono ke total marks barabar hain.":total(a)>total(b)?a.name+" ke marks zyada hain.":b.name+" ke marks zyada hain.";compareResult.innerHTML=`<div class="stats"><div class="stat"><b>${esc(a.name)}</b><span>${total(a)} / 1800</span><br><span class="tag">${percent(a).toFixed(2)}%</span></div><div class="stat"><b>${esc(b.name)}</b><span>${total(b)} / 1800</span><br><span class="tag">${percent(b).toFixed(2)}%</span></div></div><p><b>${esc(lead)}</b></p><div class="wrap"><table><thead><tr><th>Exam</th><th>${esc(a.name)}</th><th>${esc(b.name)}</th></tr></thead><tbody>${exams.map((e,i)=>{let x=a.marks[i].reduce((n,v)=>n+(v===""?0:+v),0),y=b.marks[i].reduce((n,v)=>n+(v===""?0:+v),0);return `<tr><td>${e.name}</td><td>${x}/${subjects.length*e.max}</td><td>${y}/${subjects.length*e.max}</td></tr>`}).join("")}</tbody></table></div>`}
+function renderRank(){let sorted=[...db.students].sort((a,b)=>total(b)-total(a));rankRows.innerHTML=sorted.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.name)}</td><td>${total(s)} / 1800</td><td>${percent(s).toFixed(2)}%</td></tr>`).join("")||'<tr><td colspan="4">Koi student nahi hai.</td></tr>'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));["entry","students","compare","rank"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==b.dataset.tab))});
+student.onchange=renderMarks;exam.onchange=renderMarks;personA.onchange=renderCompare;personB.onchange=renderCompare;
+add.onclick=()=>{let n=newName.value.trim();if(!n)return alert("Student ka naam likho.");if(db.students.some(s=>s.name.toLowerCase()===n.toLowerCase()))return alert("Ye naam pehle se hai.");db.students.push(blank(n));newName.value="";save();refresh()};
+backup.onclick=()=>{let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="class9-marksheet-backup.json";a.click();URL.revokeObjectURL(a.href)};
+restore.onchange=async()=>{try{let f=restore.files[0],x=JSON.parse(await f.text());if(!Array.isArray(x.students))throw Error();db=x;save();refresh();alert("Backup restore ho gaya.")}catch(e){alert("Ye backup file sahi nahi hai.")}restore.value=""};
+load();refresh();
+</script>
+</body></html>
